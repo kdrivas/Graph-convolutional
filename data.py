@@ -185,12 +185,12 @@ def data_to_index(pairs, input_vec, output_vec):
 def construct_vector(pair, name_lang, construct_vector=True, vector_name='fasttext.en.300d'):
     lang = pd.DataFrame(pair, columns=[name_lang])
 
-    lang.to_csv('data/' + name_lang + '.csv', index=False)
+    lang.to_csv('corpus/' + name_lang + '.csv', index=False)
 
     lang = data.Field(sequential=True, lower=True, init_token='<sos>', eos_token='<eos>')
 
     mt_lang = data.TabularDataset(
-        path='data/' + name_lang + '.csv', format='csv',
+        path='corpus/' + name_lang + '.csv', format='csv',
         fields=[(name_lang, lang)])
 
     lang.build_vocab(mt_lang)
@@ -229,7 +229,7 @@ def read_langs(lang1, lang2, reverse=False):
     print("Reading lines...")
 
     # Read the file and split into lines
-    filename = f'data/{lang1}-{lang2}.txt'
+    filename = f'corpus/{lang1}-{lang2}.txt'
     lines = open(filename).read().strip().split('\n')
 
     # Split every line into pairs and normalize
