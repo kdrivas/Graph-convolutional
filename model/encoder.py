@@ -24,7 +24,7 @@ class Encoder(nn.Module):
     def forward(self, input_seqs, hidden = None):
         embedded = self.embedding(input_seqs)
 
-        self.gru.flatten_parameters() 
+        self.lstm.flatten_parameters() 
         outputs, hidden = self.gru(embedded, hidden)
         
         outputs = outputs[:, :, :self.hidden_size] + outputs[:, : ,self.hidden_size:] # Sum bidirectional outputs

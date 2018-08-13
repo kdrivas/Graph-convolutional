@@ -82,7 +82,7 @@ class Decoder_luong(nn.Module):
         self.n_layers = n_layers
         self.dropout_p = dropout
         self.USE_CUDA = USE_CUDA
-        self lang = lang
+        self.lang = lang
         
         # (size of dictionary of embeddings, size of embedding vector)
         self.embedding = nn.Embedding(output_size, emb_size)
@@ -147,6 +147,7 @@ class Decoder_luong(nn.Module):
         if self.lang:
             self.embedding.weight.data.copy_(self.lang.vocab.vectors)
             self.embedding.weight.requires_grad = False
+            
         for name, param in self.gru.named_parameters():
             if 'bias' in name:
                 nn.init.constant_(param, 0.0)
