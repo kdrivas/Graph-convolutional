@@ -121,6 +121,8 @@ def generate_batches(input_lang, output_lang, batch_size, pairs, return_dep_tree
     
     for pos in range(0, len(pairs), batch_size):
         # Avoiding out of array
+        if pos == 10431:
+            continue
         cant = min(batch_size, len(pairs) - pos)
         
         input_seqs = pairs[pos:cant+pos, 0]#.tolist()
@@ -145,7 +147,7 @@ def generate_batches(input_lang, output_lang, batch_size, pairs, return_dep_tree
 
         if return_dep_tree:
             # max len is setting mannually
-            adj_arc_in, adj_arc_out, adj_lab_in, adj_lab_out, mask_in, mask_out, mask_loop = get_adj(arr_aux, batch_size, max(input_lengths), max_degree)  
+            adj_arc_in, adj_arc_out, adj_lab_in, adj_lab_out, mask_in, mask_out, mask_loop = get_adj(arr_aux, cant, max(input_lengths), max_degree)  
 
             if USE_CUDA:
                 adj_arc_in = adj_arc_in.cuda()
@@ -208,7 +210,8 @@ def unicode_to_ascii(s):
 
 def normalize_string(pair):
     pair = unicode_to_ascii(pair.lower().strip())
-    pair = re.sub(r'([.!?])', r' \1', pair) # separate .!? from words
+    pair = re.sub(r'([.,;!?])', r' \1', pair) # separate .!? from words
+    
     
     return ' '.join(pair.split())
 
@@ -220,8 +223,10 @@ def normalize_pairs(pairs):
 def filter_pairs_lang(pairs, min_length, max_length):
     filtered_pairs = []
     for pair in pairs:
+        # Removing '' and "" in pairs, this is for easy processing 
         if len(pair[0].split()) >= min_length and len(pair[0].split()) <= max_length \
-            and len(pair[1].split()) >= min_length and len(pair[1].split()) <= max_length:
+            and len(pair[1].split()) >= min_length and len(pair[1].split()) <= max_length \
+            and "'" not in pair[0] and '"' not in pair[0]:
                 filtered_pairs.append(pair)
     return filtered_pairs
 
