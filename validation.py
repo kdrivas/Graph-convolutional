@@ -4,6 +4,7 @@ from torch.nn import functional
 from torch.autograd import Variable
 from torch import optim
 import torch.nn.functional as F
+import numpy as np
 import re 
 from tqdm import tqdm
 from data import generate_batches
@@ -39,13 +40,13 @@ class Evaluator():
         encoder_outputs, encoder_hidden = self.encoder(input_var, encoder_hidden)
 
         if self.gcn1:
-            encoder_outputs = gcn1(encoder_outputs,
+            encoder_outputs = self.gcn1(encoder_outputs,
                                  adj_arc_in, adj_arc_out,
                                  adj_lab_in, adj_lab_out,
                                  mask_in, mask_out,  
                                  mask_loop)
         if self.gcn2:     
-            encoder_outputs = gcn2(encoder_outputs,
+            encoder_outputs = self.gcn2(encoder_outputs,
                                  adj_arc_in, adj_arc_out,
                                  adj_lab_in, adj_lab_out,
                                  mask_in, mask_out,  
@@ -125,12 +126,18 @@ class Evaluator():
         print('>', sentence)
         print('<', output_sentence)
         print('')
-
+    
+    def ref_to_string(self, reference):
+        aux = ''
+        for i in range(len(reference)):
+            aux += self.output_lang.vocab.itos[reference[i]] + ' '
+        return aux.strip()
+    
     def get_candidates_and_references(self, pairs, arr_dep, k_beams=3):
         input_batches, _ = generate_batches(self.input_lang, self.output_lang, 1, pairs, return_dep_tree=True, arr_dep=arr_dep, max_degree=10, USE_CUDA=self.USE_CUDA)
 
         candidates = [self.evaluate(input_batch, k_beams)[0] for input_batch in tqdm(input_batches)]
         candidates = [' '.join(candidate[:-1]) for candidate in candidates]
-        references = [pair[1] for pair in pairs]
-        references = [' '.join(self.output_lang.vocab.itos[ni]) for reference in references]
+        references = pairs_train[:,1]
+        references = [self.ref_to_string(reference) for reference in references]
         return candidates, references
