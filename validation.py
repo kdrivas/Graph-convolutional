@@ -71,7 +71,7 @@ class Evaluator():
         top_beams = []
         
         # Use decoder output as inputs
-        for di in range(self.max_length):      
+        for di in range(input_length):      
             new_beams = []
             for beam in beams:
                 decoder_output, decoder_context, decoder_hidden, decoder_attention = self.decoder(
@@ -138,6 +138,6 @@ class Evaluator():
 
         candidates = [self.evaluate(input_batch, k_beams)[0] for input_batch in tqdm(input_batches)]
         candidates = [' '.join(candidate[:-1]) for candidate in candidates]
-        references = pairs_train[:,1]
+        references = pairs[:,1]
         references = [self.ref_to_string(reference) for reference in references]
         return candidates, references
